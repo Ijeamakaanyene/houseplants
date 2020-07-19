@@ -1,0 +1,192 @@
+---
+title: "prayer_plant"
+author: "Ijeamaka Anyene"
+date: "7/17/2020"
+output: html_document
+---
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(ggforce)
+library(ggtext)
+```
+
+```{r}
+extrafont::loadfonts()
+```
+
+```{r}
+outline = tibble(
+  x = c(0, -2, -6, -7, -5, -1, 0, 1, 5, 7, 6, 2),
+  y = c(-10, -8, -4, 1, 6, 9, 10, 9, 6, 1, -4, -8)
+)
+```
+
+```{r}
+leaf_length = 12
+
+center_green_leaf = tibble(
+  x = rep(0, leaf_length),
+  y = c(8.6, 7, 5.5, 4, 2.5, 1, -0.5, -2, -3.5, -5, -6.5, -8),
+  a = rep(.25,  leaf_length),
+  b = rep(1, leaf_length), 
+  angle = rep(0, leaf_length)
+)
+
+```
+
+```{r}
+left_green_leaf = tibble(
+  x = rep(-.50, leaf_length), 
+  y = seq(from = 8.25, to = -9, by = -1.5),
+  #y = c(8.25, 7, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3), 
+  a = rep(.25, leaf_length),
+  b = rep(1, leaf_length),
+  angle = rep(.5, leaf_length)
+)
+```
+
+                   
+```{r}
+left_straight_spine = tibble(
+  x = c(-.25, -.25, -.25, -.25, -.15, 0, .15, 0, 0),
+  xend = c(-.50, -.50, -.50, -.50, -.40, -.25, -.1, -.25, -.25),
+  y = c(8, 6, 4, 2, 0, 
+        -2, -4, -7, -9),
+  yend = c(8.5, 6.5, 4.5, 2.5, 0.5, 
+           -1.5, -3.5, -6.5, -8.5)
+)
+
+right_straight_spine = tibble(
+  x = c(0, -.15, -.15, 0, 0, .25, .25, .25, 0),
+  xend = c(.25, .1, .1, .25, .25, .50, .50, .50, .25),
+  y = left_straight_spine$y,
+  yend = left_straight_spine$yend
+)
+
+```
+
+
+```{r}
+left_curved_spine = tibble(
+  x = left_straight_spine$xend,
+  xend = c(-1, -2, -3, -4, -5, -6, -6, -4, -2),
+  y = left_straight_spine$yend,
+  yend = c(9, 8, 7, 6, 5, 3, 1, -3, -7)
+)
+
+right_curved_spine = tibble(
+  x = right_straight_spine$xend,
+  xend = c(1, 2, 3, 4, 5, 6, 6, 4, 2),
+  y = right_straight_spine$yend,
+  yend = c(9, 8, 7, 6, 5, 3, 1, -3, -7)
+  )
+```
+
+```{r}
+plant_name = tibble(
+  label = "<b>Prayer Plant</b><br><i>Maranta leuconeura</i>",
+  x = 8,
+  y = -9
+)
+```
+
+
+```{r}
+ggplot() +
+  # Plant outline / shape
+  geom_bspline_closed(data = outline,
+                      aes(x, y),
+                      fill = "#00311f") +
+  
+  # Plant center light green
+  geom_ellipse(data = center_green_leaf,
+               aes(x0 = x, y0 = y, 
+                   a = a, b = b, angle = angle), 
+               fill = "#128548",
+               colour = NA) +
+  geom_ellipse(data = left_green_leaf,
+               aes(x0 = x, y0 = y, 
+                   a = a, b = b, angle = angle), 
+               fill = "#128548",
+               colour = NA) +
+  geom_ellipse(data = left_green_leaf,
+               aes(x0 = x * -1, y0 = y, 
+                   a = a, b = b, angle = 6), 
+               fill = "#128548",
+               colour = NA) +
+  
+  # Plant center spine
+  geom_curve(aes(x = 0, xend = 0,
+                 y = 9.6, yend = 0),
+             curvature = .05,
+             size = 1,
+             colour = "#c32142") +
+  geom_curve(aes(x = 0, xend = 0,
+                 y = -9.3, yend = 0),
+             curvature = .05,
+             size = 1,
+             colour = "#c32142") +
+  
+  # Plant straight segment spine
+  geom_segment(data = left_straight_spine,
+               aes(x = x, xend = xend,
+                   y = y, yend = yend),
+               size = .5,
+             colour = "#c32142") +
+  geom_segment(data = right_straight_spine,
+               aes(x = x, xend = xend,
+                   y = y, yend = yend),
+               size = .5,
+             colour = "#c32142") +
+  
+  # Plant curved segment spine 
+  geom_curve(data = left_curved_spine,
+               aes(x = x, xend = xend,
+                   y = y, yend = yend),
+             curvature = -.1,
+             size = .5,
+             colour = "#c32142") +
+  geom_curve(data = right_curved_spine,
+             aes(x = x, xend = xend,
+                   y = y, yend = yend),
+             curvature = .1,
+             size = .5,
+             colour = "#c32142") +
+  
+  # Name of plant + caption
+  geom_textbox(data = plant_name,
+               aes(x = x, y = y, label = label),
+               color = "#0f0d0d",
+               size = 9,
+               width = unit(5, "inch"),
+               family = "Lora",
+               fill = NA,
+               box.colour = NA) +
+  annotate("text", x = -10.5, y = 8, 
+           label = "Ijeamaka Anyene | @ijeamaka_a",
+           size = 4,
+           colour = "#0f0d0d",
+           family = "Open Sans",
+           angle = -90) +
+  
+  coord_fixed(xlim = c(-10, 10), ylim = c(-10, 10)) +
+  theme(panel.background = element_rect(fill = "#e1d2c0"),
+        plot.background = element_rect(fill = "#e1d2c0"),
+        panel.border = element_rect(colour = "#0f0d0d", size = 3,
+                                    fill = NA),
+        panel.grid = element_blank(),
+        axis.text = element_blank(),
+        axis.title = element_blank(),
+        axis.ticks = element_blank())
+```
+
+```{r}
+ggsave(filename = "prayer_plant.png", 
+       plot = last_plot(), 
+       device = "png",
+       type = "cairo",
+       path = here::here("images"), 
+       width = 10, height = 10)
+```
