@@ -1,0 +1,102 @@
+---
+title: "snake_plant"
+author: "Ijeamaka Anyene"
+date: "7/18/2020"
+output: html_document
+---
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(ggforce)
+library(ggtext)
+```
+
+```{r, message = FALSE}
+extrafont::loadfonts()
+```
+
+```{r}
+plant_outline = tibble(
+  # inputted clockwise
+  x = c(5, 5, 4.9, 4.8, 4.7, 4.6, 4.5, 4.5, 4.5, 4.5, #right side
+        2.95, 2.9, 2.85, 2.8, 2.8, 3, 3.2, 3.6, 4.1), # left side
+  y = c(9, 8, 7, 6, 5, 4, 3, 2, 1, 0, #right side
+        0, 1, 2, 3, 4, 5, 6, 7, 8) # left side
+)
+
+```
+
+```{r}
+plant_name = tibble(
+  label = "<b>Snake Plant</b><br><i>Sansevieria laurentii</i>",
+  x = 8,
+  y = 2
+)
+```
+
+```{r}
+snake_plant = 
+  ggplot(plant_outline) +
+  
+  # Yellow outline of plant
+  geom_shape(aes(x = x, y = y),
+             expand = unit(.2, 'cm'),
+             radius = unit(.25, 'cm'),
+             fill = "#feff6f") +
+  
+# Green center of plant with stripes
+  ggpattern::geom_polygon_pattern(aes(x = x, y = y),
+             pattern = "stripe",
+             pattern_fill = "#1c4521",
+             pattern_angle = 0,
+             fill = "#4d742f",
+             colour = "#1c4521") +
+  
+  # Name of plant + caption
+  geom_textbox(data = plant_name,
+               aes(x = x, y = y, label = label),
+               color = "#0f0d0d",
+               size = 9,
+               width = unit(5, "inch"),
+               family = "Lora",
+               fill = NA,
+               box.colour = NA) +
+  annotate("text", x = 0, y = 7.5, 
+           label = "Ijeamaka Anyene | @ijeamaka_a",
+           size = 4,
+           colour = "#0f0d0d",
+           family = "Open Sans",
+           angle = -90) +
+  
+  #geom_point(data = plant_outline,
+            # aes(x = x, y = y)) +
+  
+  # Everything else
+  coord_fixed(xlim = c(0, 9), ylim = c(1, 9)) +
+  theme(panel.background = element_rect(fill = "#e1d2c0"),
+        plot.background = element_rect(fill = "#e1d2c0"),
+        panel.border = element_rect(colour = "#0f0d0d", size = 3,
+                                    fill = NA),
+        panel.grid = element_blank(),
+        axis.text = element_blank(),
+        axis.title = element_blank(),
+        axis.ticks = element_blank()
+        )
+
+snake_plant
+```
+
+```{r}
+ggsave(filename = "snake_plant.png", 
+       plot = last_plot(), 
+       device = "png",
+       type = "cairo",
+       path = here::here("images"), 
+       width = 9, height = 8)
+```
+
+
+
+
+
